@@ -19,7 +19,11 @@ def chay(day, day_xoa):
         print('So nut:', dem_nut(g), '| Chieu cao:', chieu_cao(g))
         print('Truong hop:', tk.truong_hop,
               '| Ke vi:', tk.ke_vi if tk.ke_vi is not None else 'khong co')
-        print('So sanh tim:', tk.so_sanh_tim, '| Buoc sang trai tim ke vi:', tk.so_buoc_ke_vi)
+        # Cac gia tri sau la luot xet NUT, khong phai so toan tu <, >, ==.
+        print('Nut xet khi tim khoa:', tk.so_sanh_tim,
+              '| Nut xet de tim ke vi:', tk.so_nut_xet_ke_vi)
+        print('Buoc sang trai tim ke vi:', tk.so_buoc_ke_vi,
+              '| Nut xet de xoa ban sao:', tk.so_nut_xet_xoa_ban_sao)
         print(ve_cay_chu(g), end='')
 
 

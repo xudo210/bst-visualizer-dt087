@@ -127,7 +127,35 @@ function render() {
   $('rootStat').textContent = after.root ?? '∅';
   $('countStat').textContent = after.count;
   $('heightStat').textContent = after.height;
-  $('compareStat').textContent = stats.comparisons;
+  // Moi frame co snapshot bo dem khi callback tu src/bst.py duoc kich hoat.
+  // Chi dung bo dem cua FRAME dang xem, khong hien tong cuoi ngay tu buoc 1.
+  const current = frame.progress || {
+    search_nodes: stats.search_nodes ?? stats.comparisons,
+    successor_visits: stats.successor_visits ?? 0,
+    successor_steps: stats.successor_steps,
+    cleanup_visits: stats.cleanup_visits ?? 0,
+    total_visits: stats.total_visits ?? stats.comparisons
+  };
+  $('compareStat').textContent = current.search_nodes;
+  $('searchProgress').textContent = current.search_nodes;
+  $('successorVisitProgress').textContent = current.successor_visits;
+  $('successorLeftProgress').textContent = current.successor_steps;
+  $('cleanupProgress').textContent = current.cleanup_visits;
+  $('costTotal').textContent = current.total_visits;
+  $('costStage').textContent = `BƯỚC ${step + 1}/${data.frames.length}`;
+  $('costExplanation').textContent = stats.case === 'hai_con'
+    ? `Kế vị: ${stats.successor}; 1 nút đầu + ${stats.successor_steps} bước trái.`
+    : stats.case === 'khong_tim_thay'
+      ? 'Không tìm thấy khóa, không có thao tác kế vị.'
+      : 'Xóa lá hoặc một con nên không tìm kế vị.';
+  for (const [id, key] of [
+    ['barSearch','search_nodes'], ['barSuccessor','successor_visits'],
+    ['barLeft','successor_steps'], ['barCleanup','cleanup_visits']
+  ]) {
+    const maximum = Math.max(1, stats.search_nodes ?? stats.comparisons,
+      stats.successor_visits ?? 0, stats.successor_steps, stats.cleanup_visits ?? 0);
+    $(id).style.width = `${(100 * current[key] / maximum).toFixed(1)}%`;
+  }
   $('successorStat').textContent = stats.successor ?? 'Không có';
   $('successorSteps').textContent = stats.successor_steps;
   $('validStat').textContent = after.valid ? '✓ Hợp lệ' : '✕ Không hợp lệ';
@@ -176,7 +204,12 @@ $('copy').onclick = async () => {
     `Sau: ${JSON.stringify(run.after.inorder)}\n` +
     `Gốc: ${run.after.root ?? 'rỗng'}\n` +
     `Trường hợp: ${run.stats.case}\n` +
-    `Kế vị: ${run.stats.successor ?? 'không có'}\n`
+    `Kế vị: ${run.stats.successor ?? 'không có'}\n` +
+    `Nút xét khi tìm khóa: ${run.stats.search_nodes}\n` +
+    `Nút xét khi tìm kế vị: ${run.stats.successor_visits}\n` +
+    `Bước đi trái: ${run.stats.successor_steps}\n` +
+    `Nút xét khi xóa bản sao: ${run.stats.cleanup_visits}\n` +
+    `Tổng lượt xét nút trong các pha: ${run.stats.total_visits}\n`
   )).join('\n');
   try {
     await navigator.clipboard.writeText(text);

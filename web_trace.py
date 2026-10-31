@@ -39,6 +39,19 @@ def analyze_one(root, target):
         'hoan_tat': 'Hoàn tất thao tác xóa khóa {khoa}.',
     }
 
+    stats = ThongKe()
+
+    def tien_do():
+        # Snapshot RIENG cho moi frame; khong chia se bien dem mutable.
+        return {
+            'search_nodes': stats.so_sanh_tim,
+            'successor_visits': stats.so_nut_xet_ke_vi,
+            'successor_steps': stats.so_buoc_ke_vi,
+            'cleanup_visits': stats.so_nut_xet_xoa_ban_sao,
+            'total_visits': (stats.so_sanh_tim + stats.so_nut_xet_ke_vi
+                             + stats.so_nut_xet_xoa_ban_sao),
+        }
+
     def ghi_buoc(event, **meta):
         # Khi callback dang chay, root co the chua la goc moi sau xoa.
         # Ket qua chinh xac duoc ghi lai trong frame 'ket_qua' sau khi xoa tra ve.
@@ -49,9 +62,9 @@ def analyze_one(root, target):
                          else meta.get('khoa_moi') if event == 'thay_khoa' else None,
             'message': messages[event].format(**meta),
             'kind': event, 'event': event, 'metadata': meta,
+            'progress': tien_do(),
         })
 
-    stats = ThongKe()
     new_root = xoa(root, target, stats, ghi_buoc=ghi_buoc)
     if not kiem_bst(new_root):
         raise ValueError('Cây sau xóa không còn là BST.')
@@ -62,12 +75,17 @@ def analyze_one(root, target):
         final_message = f'Đã xóa khóa {target}, cập nhật gốc và liên kết; cây BST hợp lệ.'
     frames.append({'tree': serialize(new_root), 'active': None, 'successor': None,
                    'message': final_message, 'kind': 'done', 'event': 'ket_qua',
-                   'metadata': {}})
+                   'metadata': {}, 'progress': tien_do()})
     return new_root, {
         'target': target, 'before': before, 'after': after, 'frames': frames,
         'stats': {'case': stats.truong_hop, 'successor': stats.ke_vi,
-                  'comparisons': stats.so_sanh_tim,
-                  'successor_steps': stats.so_buoc_ke_vi}
+                  'comparisons': stats.so_sanh_tim,  # Tuong thich API cu: dem NUT DA XET, khong phai so toan tu so sanh.
+                  'search_nodes': stats.so_sanh_tim,
+                  'successor_visits': stats.so_nut_xet_ke_vi,
+                  'successor_steps': stats.so_buoc_ke_vi,
+                  'cleanup_visits': stats.so_nut_xet_xoa_ban_sao,
+                  'total_visits': (stats.so_sanh_tim + stats.so_nut_xet_ke_vi
+                                   + stats.so_nut_xet_xoa_ban_sao)}
     }
 
 

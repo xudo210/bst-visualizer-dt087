@@ -16,6 +16,8 @@ class Nut:
 class ThongKe:
     so_sanh_tim: int = 0
     so_buoc_ke_vi: int = 0
+    so_nut_xet_ke_vi: int = 0
+    so_nut_xet_xoa_ban_sao: int = 0
     truong_hop: str = 'khong_tim_thay'
     ke_vi: Optional[int] = None
 
@@ -46,16 +48,26 @@ def tao_cay(day: list[int]) -> Optional[Nut]:
     return g
 
 
-def nho_nhat(g: Nut, tk: Optional[ThongKe] = None) -> Nut:
-    """Tra ve nut trai nhat cua cay con khong rong, khong sua lien ket."""
+def nho_nhat(g: Nut, tk: Optional[ThongKe] = None, ghi_xet=None) -> Nut:
+    """Tim nut trai nhat, khong thay doi cay.
+
+    Khi co thong ke: dem moi nut da xet (gom nut goc) va so canh trai.
+    ghi_xet(nut), neu co, duoc goi ngay sau khi dem nut do; web dung
+    callback nay ghi lai tung su kien tim ke vi tu thuat toan THUC.
+    """
     if g is None:
         raise ValueError('Khong tim min cua cay rong.')
     nut = g
-    while nut.trai is not None:
+    while True:
+        if tk is not None:
+            tk.so_nut_xet_ke_vi += 1
+        if ghi_xet is not None:
+            ghi_xet(nut)
+        if nut.trai is None:
+            return nut
         if tk is not None:
             tk.so_buoc_ke_vi += 1
         nut = nut.trai
-    return nut
 
 
 def xoa(g: Optional[Nut], x: int, tk: Optional[ThongKe] = None, ghi_buoc=None) -> Optional[Nut]:
@@ -78,7 +90,9 @@ def xoa(g: Optional[Nut], x: int, tk: Optional[ThongKe] = None, ghi_buoc=None) -
         if nut is None:
             phat('khong_tim_thay', khoa=khoa, don_ke_vi=dang_xoa_ke_vi)
             return None
-        if not dang_xoa_ke_vi:
+        if dang_xoa_ke_vi:
+            tk.so_nut_xet_xoa_ban_sao += 1
+        else:
             tk.so_sanh_tim += 1
         phat('tham_nut', khoa=nut.khoa, muc_tieu=khoa, don_ke_vi=dang_xoa_ke_vi)
         if khoa < nut.khoa:
@@ -104,12 +118,12 @@ def xoa(g: Optional[Nut], x: int, tk: Optional[ThongKe] = None, ghi_buoc=None) -
             if not dang_xoa_ke_vi:
                 tk.truong_hop = 'hai_con'
             phat('xoa_hai_con', khoa=nut.khoa, don_ke_vi=dang_xoa_ke_vi)
-            ke_vi = nut.phai
-            phat('xet_ke_vi', khoa=ke_vi.khoa)
-            while ke_vi.trai is not None:
-                tk.so_buoc_ke_vi += 1
-                ke_vi = ke_vi.trai
-                phat('xet_ke_vi', khoa=ke_vi.khoa)
+            # Dung chung ham nho_nhat: khong lap lai logic tim ke vi.
+            # Callback giu nguyen thu tu su kien va bo dem cua website.
+            ke_vi = nho_nhat(
+                nut.phai, tk,
+                ghi_xet=lambda nut_xet: phat('xet_ke_vi', khoa=nut_xet.khoa),
+            )
             if not dang_xoa_ke_vi:
                 tk.ke_vi = ke_vi.khoa
             khoa_cu = nut.khoa
@@ -126,9 +140,22 @@ def xoa(g: Optional[Nut], x: int, tk: Optional[ThongKe] = None, ghi_buoc=None) -
 
 
 def duyet_giua(g: Optional[Nut]) -> list[int]:
-    if g is None:
-        return []
-    return duyet_giua(g.trai) + [g.khoa] + duyet_giua(g.phai)
+    """Duyet inorder O(n), khong tao ban sao danh sach o moi nut.
+
+    Ket qua duoc tich luy vao mot danh sach; bo nho them O(n) cho
+    ket qua va O(h) cho ngan xep de quy (h la chieu cao cua cay).
+    """
+    ket_qua = []
+
+    def duyet(nut: Optional[Nut]) -> None:
+        if nut is None:
+            return
+        duyet(nut.trai)
+        ket_qua.append(nut.khoa)
+        duyet(nut.phai)
+
+    duyet(g)
+    return ket_qua
 
 
 def dem_nut(g: Optional[Nut]) -> int:
