@@ -1,4 +1,4 @@
-"""Snapshot ghi truc tiep tu callback cua thuat toan BST goc."""
+"""Ghi snapshot truc tiep tu callback xoa BST goc, ho tro xoa 1/nhieu khoa."""
 from src.bst import tao_cay, xoa, ThongKe, duyet_giua, chieu_cao, dem_nut, kiem_bst
 
 
@@ -8,10 +8,20 @@ def serialize(root):
     return {'key': root.khoa, 'left': serialize(root.trai), 'right': serialize(root.phai)}
 
 
-def analyze(values, target):
-    root = tao_cay(values)
-    before = {'tree': serialize(root), 'inorder': duyet_giua(root),
+def _summary(root, final=False):
+    result = {'tree': serialize(root), 'inorder': duyet_giua(root),
               'count': dem_nut(root), 'height': chieu_cao(root)}
+    if final:
+        result.update(root=root.khoa if root else None, valid=kiem_bst(root))
+    return result
+
+
+def analyze_one(root, target):
+    """Xoa mot khoa tren cay hien tai; tra ve (goc_moi, ket_qua).
+
+    Cac snapshot giua buoc co the chua la BST hop le; ket qua cuoi luon kiem tra.
+    """
+    before = _summary(root)
     frames = []
     messages = {
         'bat_dau': 'Bắt đầu xóa khóa {khoa}.',
@@ -28,29 +38,51 @@ def analyze(values, target):
         'noi_nhanh_phai': 'Đã cập nhật liên kết nhánh phải của nút {khoa}.',
         'hoan_tat': 'Hoàn tất thao tác xóa khóa {khoa}.',
     }
+
     def ghi_buoc(event, **meta):
-        # Goc moi chi duoc cap nhat khi ham xoa tra ve.
-        current = result_holder[0] if event == 'hoan_tat' else root
-        if event == 'hoan_tat':
-            current = result_holder[0]
-        active = meta.get('khoa') if event not in ('bat_dau','hoan_tat','thay_khoa') else None
-        frames.append({'tree': serialize(current), 'active': active,
-                       'successor': meta.get('khoa') if event == 'xet_ke_vi' else meta.get('khoa_moi') if event == 'thay_khoa' else None,
-                       'message': messages[event].format(**meta), 'kind': event,
-                       'event': event, 'metadata': meta})
-    # Ham xoa phat 'hoan_tat' truoc khi tra ve. Goc thay doi duoc chot
-    # bang snapshot cuoi ben duoi, thay vi suy doan con tro goc moi.
-    result_holder = [root]
-    tk = ThongKe()
-    result = xoa(root, target, tk, ghi_buoc=ghi_buoc)
-    result_holder[0] = result
-    assert kiem_bst(result), 'Cây sau xóa không còn là BST.'
-    after = {'tree': serialize(result), 'inorder': duyet_giua(result),
-             'count': dem_nut(result), 'height': chieu_cao(result),
-             'root': result.khoa if result else None, 'valid': True}
-    frames.append({'tree': serialize(result), 'active': None, 'successor': None,
-                   'message': 'Đã hoàn tất cập nhật gốc và tất cả liên kết; cây BST hợp lệ.',
-                   'kind': 'done', 'event': 'ket_qua', 'metadata': {}})
-    return {'before': before, 'after': after, 'frames': frames,
-            'stats': {'case': tk.truong_hop, 'successor': tk.ke_vi,
-                      'comparisons': tk.so_sanh_tim, 'successor_steps': tk.so_buoc_ke_vi}}
+        # Khi callback dang chay, root co the chua la goc moi sau xoa.
+        # Ket qua chinh xac duoc ghi lai trong frame 'ket_qua' sau khi xoa tra ve.
+        active = meta.get('khoa') if event not in ('bat_dau', 'hoan_tat', 'thay_khoa') else None
+        frames.append({
+            'tree': serialize(root), 'active': active,
+            'successor': meta.get('khoa') if event == 'xet_ke_vi'
+                         else meta.get('khoa_moi') if event == 'thay_khoa' else None,
+            'message': messages[event].format(**meta),
+            'kind': event, 'event': event, 'metadata': meta,
+        })
+
+    stats = ThongKe()
+    new_root = xoa(root, target, stats, ghi_buoc=ghi_buoc)
+    if not kiem_bst(new_root):
+        raise ValueError('Cây sau xóa không còn là BST.')
+    after = _summary(new_root, final=True)
+    if stats.truong_hop == 'khong_tim_thay':
+        final_message = f'Không tìm thấy khóa {target}; cây giữ nguyên và vẫn là BST hợp lệ.'
+    else:
+        final_message = f'Đã xóa khóa {target}, cập nhật gốc và liên kết; cây BST hợp lệ.'
+    frames.append({'tree': serialize(new_root), 'active': None, 'successor': None,
+                   'message': final_message, 'kind': 'done', 'event': 'ket_qua',
+                   'metadata': {}})
+    return new_root, {
+        'target': target, 'before': before, 'after': after, 'frames': frames,
+        'stats': {'case': stats.truong_hop, 'successor': stats.ke_vi,
+                  'comparisons': stats.so_sanh_tim,
+                  'successor_steps': stats.so_buoc_ke_vi}
+    }
+
+
+def analyze(values, target):
+    """API cu: giu nguyen dinh dang tra ve de khong anh huong cac test cu."""
+    _, result = analyze_one(tao_cay(values), target)
+    return result
+
+
+def analyze_batch(values, targets):
+    """Chen mot lan, xoa lan luot tren CHINH cay da cap nhat."""
+    root = tao_cay(values)
+    runs = []
+    for i, target in enumerate(targets, start=1):
+        root, result = analyze_one(root, target)
+        result['index'] = i
+        runs.append(result)
+    return {'runs': runs, 'total': len(runs)}

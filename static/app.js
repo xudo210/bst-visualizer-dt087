@@ -1,1 +1,188 @@
-const $=id=>document.getElementById(id);let data=null,step=0,timer=null;function parseValues(s){if(!s.trim())return [];const parts=s.trim().split(/[\s,;]+/);if(parts.some(x=>!/^[-+]?\d+$/.test(x)))throw Error('Dãy chèn chỉ được chứa số nguyên, ngăn cách bởi dấu phẩy hoặc khoảng trắng.');const values=parts.map(Number);if(values.some(x=>!Number.isSafeInteger(x)))throw Error('Số nguyên nằm ngoài phạm vi an toàn của JavaScript.');return values}function stop(){clearInterval(timer);timer=null;$('play').textContent='▶ Phát'}async function run(){stop();$('error').hidden=true;try{const values=parseValues($('values').value),raw=$('target').value.trim();if(!/^[-+]?\d+$/.test(raw)||!Number.isSafeInteger(Number(raw)))throw Error('Khóa cần xóa phải là một số nguyên hợp lệ.');const res=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({values,target:Number(raw)})});const body=await res.json();if(!res.ok)throw Error(body.error||'Không thể xử lý yêu cầu.');data=body;step=0;$('seek').max=data.frames.length-1;render()}catch(e){$('error').textContent=e.message;$('error').hidden=false}}function nodes(root){let arr=[],edges=[],counter=0;function walk(n,depth,parent){if(!n)return;const id=counter++;walk(n.left,depth+1,id);const x=arr.length;arr.push({id,key:n.key,depth,x});if(parent!==null)edges.push({parent,id});walk(n.right,depth+1,id)}walk(root,0,null);return {arr,edges}}function draw(root,active,successor){const svg=$('treeSvg');svg.replaceChildren();$('emptyTree').hidden=!!root;if(!root){svg.setAttribute('viewBox','0 0 800 330');return}const {arr}=nodes(root);const maxDepth=Math.max(...arr.map(n=>n.depth));const width=Math.max(700,arr.length*66+80),height=Math.max(330,(maxDepth+1)*92+50);svg.setAttribute('viewBox',`0 0 ${width} ${height}`);svg.style.width=width+'px';svg.style.height=height+'px';let i=0;function layout(n,depth){if(!n)return null;const left=layout(n.left,depth+1);const x=50+(i++)*66;const y=55+depth*90;const right=layout(n.right,depth+1);const point={x,y,key:n.key,left,right};return point}const tree=layout(root,0),ns='http://www.w3.org/2000/svg';function el(tag,attrs){const o=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))o.setAttribute(k,v);return o}function paint(n){if(!n)return;for(const child of [n.left,n.right])if(child){svg.appendChild(el('line',{x1:n.x,y1:n.y,x2:child.x,y2:child.y}));paint(child)}const cls=n.key===successor?'successor-node':n.key===active?'active-node':'';svg.appendChild(el('circle',{cx:n.x,cy:n.y,r:23,class:cls}));const t=el('text',{x:n.x,y:n.y+5,'text-anchor':'middle','font-size':'14'});t.textContent=n.key;svg.appendChild(t)}paint(tree)}function render(){if(!data)return;const f=data.frames[step],a=data.after,s=data.stats;draw(f.tree,f.active,f.successor);$('stepInfo').textContent=f.message;$('explain').textContent=f.message;$('stepNum').textContent=`${step+1} / ${data.frames.length}`;$('seek').value=step;$('rootStat').textContent=a.root??'∅';$('countStat').textContent=a.count;$('heightStat').textContent=a.height;$('compareStat').textContent=s.comparisons;$('successorStat').textContent=s.successor??'Không có';$('successorSteps').textContent=s.successor_steps;$('validStat').textContent=a.valid?'✓ Hợp lệ':'✕ Không hợp lệ';$('beforeInorder').textContent=JSON.stringify(data.before.inorder);$('afterInorder').textContent=JSON.stringify(a.inorder);$('caseBadge').textContent=({'la':'NÚT LÁ','mot_con':'MỘT CON','hai_con':'HAI CON','khong_tim_thay':'KHÔNG TÌM THẤY'})[s.case]||s.case}function go(n){if(!data)return;step=Math.max(0,Math.min(n,data.frames.length-1));render();if(step===data.frames.length-1)stop()}$('run').onclick=run;$('prev').onclick=()=>{stop();go(step-1)};$('next').onclick=()=>{stop();go(step+1)};$('seek').oninput=e=>{stop();go(+e.target.value)};$('play').onclick=()=>{if(!data)return;if(timer){stop();return}if(step>=data.frames.length-1)go(0);$('play').textContent='Ⅱ Tạm dừng';timer=setInterval(()=>go(step+1),+$('speed').value)};$('speed').onchange=()=>{if(timer){stop();$('play').click()}};document.querySelectorAll('[data-values]').forEach(b=>b.onclick=()=>{$('values').value=b.dataset.values;$('target').value=b.dataset.target;run()});$('copy').onclick=async()=>{if(!data)return;const txt=`Trước: ${JSON.stringify(data.before.inorder)}\nSau: ${JSON.stringify(data.after.inorder)}\nGốc: ${data.after.root??'rỗng'}\nTrường hợp: ${data.stats.case}\nKế vị: ${data.stats.successor??'không có'}`;try{await navigator.clipboard.writeText(txt);$('copy').textContent='✓ Đã sao chép'}catch(e){$('copy').textContent='Không thể sao chép'}};run();
+const $ = (id) => document.getElementById(id);
+let allRuns = [], data = null, step = 0, timer = null;
+
+function parseValues(s) {
+  if (!s.trim()) return [];
+  const parts = s.trim().split(/[\s,;]+/);
+  if (parts.some(x => !/^[-+]?\d+$/.test(x))) {
+    throw Error('Chỉ được nhập số nguyên, phân cách bằng dấu phẩy, khoảng trắng hoặc chấm phẩy.');
+  }
+  const values = parts.map(Number);
+  if (values.some(x => !Number.isSafeInteger(x))) {
+    throw Error('Số nguyên nằm ngoài phạm vi an toàn của JavaScript.');
+  }
+  return values;
+}
+
+function stop() {
+  clearInterval(timer);
+  timer = null;
+  $('play').textContent = '▶ Phát';
+}
+
+async function run() {
+  stop();
+  $('error').hidden = true;
+  try {
+    const values = parseValues($('values').value);
+    const targets = parseValues($('target').value);
+    if (targets.length < 1 || targets.length > 20) {
+      throw Error('Hãy nhập từ 1 đến 20 khóa cần xóa.');
+    }
+    const response = await fetch('/api/analyze-batch', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({values, targets})
+    });
+    const body = await response.json();
+    if (!response.ok) throw Error(body.error || 'Không thể xử lý yêu cầu.');
+    allRuns = body.runs;
+    const select = $('operationSelect');
+    select.replaceChildren();
+    for (let i = 0; i < allRuns.length; i++) {
+      const item = document.createElement('option');
+      item.value = String(i);
+      item.textContent = `Lần ${i + 1}: Xóa ${allRuns[i].target}`;
+      select.appendChild(item);
+    }
+    showOperation(0);
+  } catch (error) {
+    $('error').textContent = error.message;
+    $('error').hidden = false;
+  }
+}
+
+function showOperation(index) {
+  if (!allRuns.length) return;
+  stop();
+  data = allRuns[index];
+  $('operationSelect').value = String(index);
+  $('operationInfo').textContent = `Đang xem lần ${index + 1}/${allRuns.length}. Dữ liệu đầu vào là cây sau lần xóa trước.`;
+  step = 0;
+  $('seek').max = data.frames.length - 1;
+  render();
+}
+
+function draw(root, active, successor) {
+  const svg = $('treeSvg');
+  svg.replaceChildren();
+  $('emptyTree').hidden = !!root;
+  if (!root) {
+    svg.setAttribute('viewBox', '0 0 800 330');
+    svg.style.width = '800px';
+    svg.style.height = '330px';
+    return;
+  }
+  let index = 0;
+  let count = 0;
+  let maxDepth = 0;
+  function layout(node, depth) {
+    if (!node) return null;
+    const left = layout(node.left, depth + 1);
+    const x = 50 + index++ * 66;
+    const y = 55 + depth * 90;
+    const right = layout(node.right, depth + 1);
+    count++;
+    maxDepth = Math.max(maxDepth, depth);
+    return {x, y, key: node.key, left, right};
+  }
+  const tree = layout(root, 0);
+  const width = Math.max(700, count * 66 + 80);
+  const height = Math.max(330, (maxDepth + 1) * 92 + 50);
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.style.width = width + 'px';
+  svg.style.height = height + 'px';
+  const ns = 'http://www.w3.org/2000/svg';
+  function el(tag, attrs) {
+    const obj = document.createElementNS(ns, tag);
+    for (const [key, value] of Object.entries(attrs)) obj.setAttribute(key, value);
+    return obj;
+  }
+  function paint(node) {
+    if (!node) return;
+    for (const child of [node.left, node.right]) {
+      if (child) {
+        svg.appendChild(el('line', {x1: node.x, y1: node.y, x2: child.x, y2: child.y}));
+        paint(child);
+      }
+    }
+    const cls = node.key === successor ? 'successor-node' :
+                node.key === active ? 'active-node' : '';
+    svg.appendChild(el('circle', {cx: node.x, cy: node.y, r: 23, class: cls}));
+    const label = el('text', {x: node.x, y: node.y + 5, 'text-anchor': 'middle', 'font-size': '14'});
+    label.textContent = node.key;
+    svg.appendChild(label);
+  }
+  paint(tree);
+}
+
+function render() {
+  if (!data) return;
+  const frame = data.frames[step], after = data.after, stats = data.stats;
+  draw(frame.tree, frame.active, frame.successor);
+  $('stepInfo').textContent = frame.message;
+  $('explain').textContent = frame.message;
+  $('stepNum').textContent = `${step + 1} / ${data.frames.length}`;
+  $('seek').value = step;
+  $('rootStat').textContent = after.root ?? '∅';
+  $('countStat').textContent = after.count;
+  $('heightStat').textContent = after.height;
+  $('compareStat').textContent = stats.comparisons;
+  $('successorStat').textContent = stats.successor ?? 'Không có';
+  $('successorSteps').textContent = stats.successor_steps;
+  $('validStat').textContent = after.valid ? '✓ Hợp lệ' : '✕ Không hợp lệ';
+  $('beforeInorder').textContent = JSON.stringify(data.before.inorder);
+  $('afterInorder').textContent = JSON.stringify(after.inorder);
+  $('caseBadge').textContent = ({
+    la:'NÚT LÁ', mot_con:'MỘT CON', hai_con:'HAI CON',
+    khong_tim_thay:'KHÔNG TÌM THẤY'
+  })[stats.case] || stats.case;
+}
+
+function go(index) {
+  if (!data) return;
+  step = Math.max(0, Math.min(index, data.frames.length - 1));
+  render();
+  if (step === data.frames.length - 1) stop();
+}
+
+$('run').onclick = run;
+$('operationSelect').onchange = (event) => showOperation(Number(event.target.value));
+$('prev').onclick = () => { stop(); go(step - 1); };
+$('next').onclick = () => { stop(); go(step + 1); };
+$('seek').oninput = (event) => { stop(); go(Number(event.target.value)); };
+$('play').onclick = () => {
+  if (!data) return;
+  if (timer) { stop(); return; }
+  if (step >= data.frames.length - 1) go(0);
+  $('play').textContent = 'Ⅱ Tạm dừng';
+  timer = setInterval(() => go(step + 1), Number($('speed').value));
+};
+$('speed').onchange = () => {
+  if (timer) { stop(); $('play').click(); }
+};
+document.querySelectorAll('[data-values]').forEach(button => {
+  button.onclick = () => {
+    $('values').value = button.dataset.values;
+    $('target').value = button.dataset.target;
+    run();
+  };
+});
+$('copy').onclick = async () => {
+  if (!data) return;
+  const text = allRuns.map((run, i) => (
+    `Lần ${i + 1}: Xóa ${run.target}\n` +
+    `Trước: ${JSON.stringify(run.before.inorder)}\n` +
+    `Sau: ${JSON.stringify(run.after.inorder)}\n` +
+    `Gốc: ${run.after.root ?? 'rỗng'}\n` +
+    `Trường hợp: ${run.stats.case}\n` +
+    `Kế vị: ${run.stats.successor ?? 'không có'}\n`
+  )).join('\n');
+  try {
+    await navigator.clipboard.writeText(text);
+    $('copy').textContent = '✓ Đã sao chép';
+  } catch (error) {
+    $('copy').textContent = 'Không thể sao chép';
+  }
+};
+run();
