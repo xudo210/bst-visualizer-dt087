@@ -1,5 +1,5 @@
 const $ = (id) => document.getElementById(id);
-let allRuns = [], data = null, step = 0, timer = null;
+let allRuns = [], data = null, step = 0, timer = null, requestToken = 0;
 
 function parseValues(s) {
   if (!s.trim()) return [];
@@ -21,7 +21,9 @@ function stop() {
 }
 
 async function run() {
+  const token = ++requestToken;
   stop();
+  $('run').disabled = true;
   $('error').hidden = true;
   try {
     const values = parseValues($('values').value);
@@ -35,6 +37,7 @@ async function run() {
       body: JSON.stringify({values, targets})
     });
     const body = await response.json();
+    if (token !== requestToken) return;
     if (!response.ok) throw Error(body.error || 'Không thể xử lý yêu cầu.');
     allRuns = body.runs;
     const select = $('operationSelect');
@@ -47,8 +50,12 @@ async function run() {
     }
     showOperation(0);
   } catch (error) {
-    $('error').textContent = error.message;
-    $('error').hidden = false;
+    if (token === requestToken) {
+      $('error').textContent = error.message;
+      $('error').hidden = false;
+    }
+  } finally {
+    if (token === requestToken) $('run').disabled = false;
   }
 }
 
@@ -57,9 +64,10 @@ function showOperation(index) {
   stop();
   data = allRuns[index];
   $('operationSelect').value = String(index);
-  $('operationInfo').textContent = `Đang xem lần ${index + 1}/${allRuns.length}. Dữ liệu đầu vào là cây sau lần xóa trước.`;
+  $('operationInfo').textContent = `Lần ${index + 1}/${allRuns.length}; cây khởi đầu là kết quả lần trước. Ba thẻ gốc/số nút/chiều cao là kết quả CUỐI của lần này.`;
   step = 0;
   $('seek').max = data.frames.length - 1;
+  $('copy').textContent = '⧉ Sao chép kết quả';
   render();
 }
 
@@ -219,3 +227,38 @@ $('copy').onclick = async () => {
   }
 };
 run();
+
+
+// Xuat nhat ky tu chinh cac frame ma thuat toan Python da ghi lai.
+$('downloadTrace').onclick = () => {
+  if (!allRuns.length) return;
+  const lines = [
+    'DT087 - NHAT KY MO PHONG XOA NUT BST',
+    'Nguon: src/bst.py; API: /api/analyze-batch',
+    'Quy uoc: so nut duoc xet, khong phai so phep so sanh toan tu.',
+    ''
+  ];
+  for (const [i, run] of allRuns.entries()) {
+    lines.push(`===== LAN ${i + 1}: XOA ${run.target} =====`);
+    lines.push(`Inorder truoc: ${JSON.stringify(run.before.inorder)}`);
+    lines.push(`Inorder sau:   ${JSON.stringify(run.after.inorder)}`);
+    lines.push(`Goc sau: ${run.after.root ?? 'rong'}; so nut: ${run.after.count}; cao: ${run.after.height}; BST hop le: ${run.after.valid}`);
+    lines.push(`Truong hop: ${run.stats.case}; ke vi: ${run.stats.successor ?? 'khong co'}`);
+    lines.push(`Tim khoa: ${run.stats.search_nodes}; xet ke vi: ${run.stats.successor_visits}; buoc trai: ${run.stats.successor_steps}; xoa ban sao: ${run.stats.cleanup_visits}; tong luot xet: ${run.stats.total_visits}`);
+    for (const [j, frame] of run.frames.entries()) {
+      const p = frame.progress || {};
+      lines.push(`${String(j + 1).padStart(2, '0')}. ${frame.message} [tim=${p.search_nodes ?? 0}, kevi=${p.successor_visits ?? 0}, trai=${p.successor_steps ?? 0}, bansao=${p.cleanup_visits ?? 0}]`);
+    }
+    lines.push('');
+  }
+  const content = '\uFEFF' + lines.join('\n');
+  const blob = new Blob([content], {type: 'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'DT087_nhat_ky_xoa_BST.txt';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};

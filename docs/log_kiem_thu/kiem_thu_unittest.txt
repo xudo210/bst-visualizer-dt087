@@ -1,0 +1,62 @@
+$ -m unittest discover -s test -p test_*.py -v
+
+
+test_duyet_giua_cay_can_bang (test_cai_tien_bst.TestCaiTienBST.test_duyet_giua_cay_can_bang) ... ok
+test_duyet_giua_cay_rong (test_cai_tien_bst.TestCaiTienBST.test_duyet_giua_cay_rong) ... ok
+test_duyet_giua_cay_suy_bien_100_khoa (test_cai_tien_bst.TestCaiTienBST.test_duyet_giua_cay_suy_bien_100_khoa) ... ok
+test_duyet_giua_khong_chinh_sua_cay (test_cai_tien_bst.TestCaiTienBST.test_duyet_giua_khong_chinh_sua_cay) ... ok
+test_ke_vi_co_con_phai_khong_mat_nut (test_cai_tien_bst.TestCaiTienBST.test_ke_vi_co_con_phai_khong_mat_nut) ... ok
+test_nho_nhat_cay_rong (test_cai_tien_bst.TestCaiTienBST.test_nho_nhat_cay_rong) ... ok
+test_nho_nhat_mot_nut (test_cai_tien_bst.TestCaiTienBST.test_nho_nhat_mot_nut) ... ok
+test_nho_nhat_thong_ke_khong_sua_cay (test_cai_tien_bst.TestCaiTienBST.test_nho_nhat_thong_ke_khong_sua_cay) ... ok
+test_trace_ke_vi_sau_giu_nguyen_bo_dem (test_cai_tien_bst.TestCaiTienBST.test_trace_ke_vi_sau_giu_nguyen_bo_dem) ... ok
+test_xoa_nhieu_khoa_giu_nguyen_ket_qua (test_cai_tien_bst.TestCaiTienBST.test_xoa_nhieu_khoa_giu_nguyen_ket_qua) ... ok
+test_api_and_stats_are_wired (test_giao_dien_cuoi.TestGiaoDienCuoi.test_api_and_stats_are_wired) ... ok
+test_assets_and_all_examples (test_giao_dien_cuoi.TestGiaoDienCuoi.test_assets_and_all_examples) ... ok
+test_frontend_element_ids_exist (test_giao_dien_cuoi.TestGiaoDienCuoi.test_frontend_element_ids_exist) ... ok
+test_delete_root_to_empty (test_nang_cao.TestNangCao.test_delete_root_to_empty) ... ok
+test_random_sequential_deletions (test_nang_cao.TestNangCao.test_random_sequential_deletions) ... ok
+test_random_trace_matches_result (test_nang_cao.TestNangCao.test_random_trace_matches_result) ... ok
+test_successor_has_right_child (test_nang_cao.TestNangCao.test_successor_has_right_child) ... ok
+test_trace_real_events (test_nang_cao.TestNangCao.test_trace_real_events) ... ok
+test_batch_counters_reset (test_thong_ke.TestThongKe.test_batch_counters_reset) ... ok
+test_core_api_stats (test_thong_ke.TestThongKe.test_core_api_stats) ... ok
+test_deep_successor (test_thong_ke.TestThongKe.test_deep_successor) ... ok
+test_empty (test_thong_ke.TestThongKe.test_empty) ... ok
+test_event_counts_match_trace (test_thong_ke.TestThongKe.test_event_counts_match_trace) ... ok
+test_leaf_and_one_child (test_thong_ke.TestThongKe.test_leaf_and_one_child) ... ok
+test_missing (test_thong_ke.TestThongKe.test_missing) ... ok
+test_successor_with_right_child (test_thong_ke.TestThongKe.test_successor_with_right_child) ... ok
+test_two_children (test_thong_ke.TestThongKe.test_two_children) ... ok
+test_api_current_and_legacy (test_thong_ke.TestThongKeAPI.test_api_current_and_legacy) ... skipped 'Chua cai Flask: bo qua test HTTP, test logic van chay'
+test_29_ca_lap_lai_duoc (test_thuc_nghiem.TestThucNghiem.test_29_ca_lap_lai_duoc) ... ok
+test_cay_tang_dan_va_chia_giua (test_thuc_nghiem.TestThucNghiem.test_cay_tang_dan_va_chia_giua) ... ok
+test_kiem_bat_bien_moi_buoc_xoa_ngau_nhien (test_thuc_nghiem.TestThucNghiem.test_kiem_bat_bien_moi_buoc_xoa_ngau_nhien) ... ok
+test_tham_nut_khong_qua_ba_lan_chieu_cao (test_thuc_nghiem.TestThucNghiem.test_tham_nut_khong_qua_ba_lan_chieu_cao) ... ok
+test_thu_tu_co_dinh_va_csv_roundtrip (test_thuc_nghiem.TestThucNghiem.test_thu_tu_co_dinh_va_csv_roundtrip) ... ok
+test_duplicate (test_web.TestWeb.test_duplicate) ... skipped 'Chưa cài Flask: bỏ qua kiểm thử HTTP; khi cài sẽ chạy đầy đủ'
+test_empty (test_web.TestWeb.test_empty) ... skipped 'Chưa cài Flask: bỏ qua kiểm thử HTTP; khi cài sẽ chạy đầy đủ'
+test_home (test_web.TestWeb.test_home) ... skipped 'Chưa cài Flask: bỏ qua kiểm thử HTTP; khi cài sẽ chạy đầy đủ'
+test_invalid (test_web.TestWeb.test_invalid) ... skipped 'Chưa cài Flask: bỏ qua kiểm thử HTTP; khi cài sẽ chạy đầy đủ'
+test_leaf (test_web.TestWeb.test_leaf) ... skipped 'Chưa cài Flask: bỏ qua kiểm thử HTTP; khi cài sẽ chạy đầy đủ'
+test_limit (test_web.TestWeb.test_limit) ... skipped 'Chưa cài Flask: bỏ qua kiểm thử HTTP; khi cài sẽ chạy đầy đủ'
+test_missing (test_web.TestWeb.test_missing) ... skipped 'Chưa cài Flask: bỏ qua kiểm thử HTTP; khi cài sẽ chạy đầy đủ'
+test_one_child (test_web.TestWeb.test_one_child) ... skipped 'Chưa cài Flask: bỏ qua kiểm thử HTTP; khi cài sẽ chạy đầy đủ'
+test_successor (test_web.TestWeb.test_successor) ... skipped 'Chưa cài Flask: bỏ qua kiểm thử HTTP; khi cài sẽ chạy đầy đủ'
+test_two_children (test_web.TestWeb.test_two_children) ... skipped 'Chưa cài Flask: bỏ qua kiểm thử HTTP; khi cài sẽ chạy đầy đủ'
+test_batch_endpoint (test_web_batch.TestBatchAPI.test_batch_endpoint) ... skipped 'Chua cai Flask; bo qua kiem thu API, logic BST van duoc kiem tra'
+test_old_endpoint_unchanged (test_web_batch.TestBatchAPI.test_old_endpoint_unchanged) ... skipped 'Chua cai Flask; bo qua kiem thu API, logic BST van duoc kiem tra'
+test_reject_empty_targets (test_web_batch.TestBatchAPI.test_reject_empty_targets) ... skipped 'Chua cai Flask; bo qua kiem thu API, logic BST van duoc kiem tra'
+test_reject_non_integer (test_web_batch.TestBatchAPI.test_reject_non_integer) ... skipped 'Chua cai Flask; bo qua kiem thu API, logic BST van duoc kiem tra'
+test_reject_too_many (test_web_batch.TestBatchAPI.test_reject_too_many) ... skipped 'Chua cai Flask; bo qua kiem thu API, logic BST van duoc kiem tra'
+test_empty_tree (test_web_batch.TestBatchTree.test_empty_tree) ... ok
+test_four_deletes_in_order (test_web_batch.TestBatchTree.test_four_deletes_in_order) ... ok
+test_repeat_same_delete (test_web_batch.TestBatchTree.test_repeat_same_delete) ... ok
+test_successor_right_child_retained (test_web_batch.TestBatchTree.test_successor_right_child_retained) ... ok
+
+----------------------------------------------------------------------
+Ran 52 tests in 0.257s
+
+OK (skipped=16)
+
+EXIT CODE: 0

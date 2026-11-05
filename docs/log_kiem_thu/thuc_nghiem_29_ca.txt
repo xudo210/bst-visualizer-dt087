@@ -1,0 +1,37 @@
+$ -m experiments.benchmark
+
+N05_tang_dan_xoa_goc                    n= 5 h= 5 tim= 1 ke_vi= 0 don= 0 tong= 1 PASS
+N05_tang_dan_xoa_lon_nhat               n= 5 h= 5 tim= 5 ke_vi= 0 don= 0 tong= 5 PASS
+N05_tang_dan_khong_ton_tai              n= 5 h= 5 tim= 5 ke_vi= 0 don= 0 tong= 5 PASS
+N05_chia_giua_xoa_goc                   n= 5 h= 3 tim= 1 ke_vi= 1 don= 1 tong= 3 PASS
+N05_chia_giua_xoa_lon_nhat              n= 5 h= 3 tim= 3 ke_vi= 0 don= 0 tong= 3 PASS
+N05_chia_giua_khong_ton_tai             n= 5 h= 3 tim= 3 ke_vi= 0 don= 0 tong= 3 PASS
+N05_tron_co_dinh_xoa_goc                n= 5 h= 4 tim= 1 ke_vi= 0 don= 0 tong= 1 PASS
+N05_tron_co_dinh_xoa_lon_nhat           n= 5 h= 4 tim= 1 ke_vi= 0 don= 0 tong= 1 PASS
+N05_tron_co_dinh_khong_ton_tai          n= 5 h= 4 tim= 1 ke_vi= 0 don= 0 tong= 1 PASS
+N20_tang_dan_xoa_goc                    n=20 h=20 tim= 1 ke_vi= 0 don= 0 tong= 1 PASS
+N20_tang_dan_xoa_lon_nhat               n=20 h=20 tim=20 ke_vi= 0 don= 0 tong=20 PASS
+N20_tang_dan_khong_ton_tai              n=20 h=20 tim=20 ke_vi= 0 don= 0 tong=20 PASS
+N20_chia_giua_xoa_goc                   n=20 h= 5 tim= 1 ke_vi= 3 don= 3 tong= 7 PASS
+N20_chia_giua_xoa_lon_nhat              n=20 h= 5 tim= 5 ke_vi= 0 don= 0 tong= 5 PASS
+N20_chia_giua_khong_ton_tai             n=20 h= 5 tim= 5 ke_vi= 0 don= 0 tong= 5 PASS
+N20_tron_co_dinh_xoa_goc                n=20 h= 7 tim= 1 ke_vi= 4 don= 4 tong= 9 PASS
+N20_tron_co_dinh_xoa_lon_nhat           n=20 h= 7 tim= 4 ke_vi= 0 don= 0 tong= 4 PASS
+N20_tron_co_dinh_khong_ton_tai          n=20 h= 7 tim= 4 ke_vi= 0 don= 0 tong= 4 PASS
+N50_tang_dan_xoa_goc                    n=50 h=50 tim= 1 ke_vi= 0 don= 0 tong= 1 PASS
+N50_tang_dan_xoa_lon_nhat               n=50 h=50 tim=50 ke_vi= 0 don= 0 tong=50 PASS
+N50_tang_dan_khong_ton_tai              n=50 h=50 tim=50 ke_vi= 0 don= 0 tong=50 PASS
+N50_chia_giua_xoa_goc                   n=50 h= 6 tim= 1 ke_vi= 4 don= 4 tong= 9 PASS
+N50_chia_giua_xoa_lon_nhat              n=50 h= 6 tim= 6 ke_vi= 0 don= 0 tong= 6 PASS
+N50_chia_giua_khong_ton_tai             n=50 h= 6 tim= 6 ke_vi= 0 don= 0 tong= 6 PASS
+N50_tron_co_dinh_xoa_goc                n=50 h=12 tim= 1 ke_vi= 1 don= 1 tong= 3 PASS
+N50_tron_co_dinh_xoa_lon_nhat           n=50 h=12 tim= 5 ke_vi= 0 don= 0 tong= 5 PASS
+N50_tron_co_dinh_khong_ton_tai          n=50 h=12 tim= 5 ke_vi= 0 don= 0 tong= 5 PASS
+KE_VI_SAU                               n= 9 h= 5 tim= 1 ke_vi= 4 don= 4 tong= 9 PASS
+KE_VI_CO_CON_PHAI                       n= 7 h= 5 tim= 1 ke_vi= 2 don= 2 tong= 5 PASS
+KET QUA: 29/29 ca PASS
+CSV: /mnt/data/DT087_CHOT_HO_SO_2026_11_01/work/N24DCDT105_DT087_LeAnhTuan_MaNguon/experiments/ket_qua.csv
+BANG MARKDOWN: /mnt/data/DT087_CHOT_HO_SO_2026_11_01/work/N24DCDT105_DT087_LeAnhTuan_MaNguon/experiments/BANG_KET_QUA.md
+
+
+EXIT CODE: 0

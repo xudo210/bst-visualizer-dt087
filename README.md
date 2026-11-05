@@ -1,49 +1,72 @@
-# DT087 – Xóa nút cây nhị phân tìm kiếm (BST)
+# DT087 – Bản web và mã nguồn CUỐI CÙNG
 
-- Sinh viên: Lê Anh Tuấn – N24DCDT105 – D24CQDT01-N
-- Học phần INT13185, Nhóm 03; đề DT087.
-- Ngôn ngữ: Python 3; lõi thuật toán chỉ dùng thư viện chuẩn, website sử dụng Flask và Gunicorn.
-- Thuật toán: `src/bst.py`; ví dụ/nhập liệu: `demo.py`; kiểm thử: `test/runtests.py`.
+**Đề tài:** Xóa nút trên cây tìm kiếm nhị phân (BST): nút lá, một con, hai con, dùng nút kế vị (successor).  
+**Học phần:** Cấu trúc dữ liệu và Giải thuật – INT13185.  
+**Sinh viên:** Lê Anh Tuấn – N24DCDT105.  
+**Website:** https://bst-visualizer-dt087.onrender.com/  
+**Repository:** https://github.com/xudo210/bst-visualizer-dt087
 
-## Chạy trong VS Code
-Mở **Open Folder** tại thư mục dự án chứa `demo.py`.
+## Chức năng đã tích hợp trong một bản duy nhất
+
+1. Tạo BST với tối đa 100 khóa nguyên phân biệt, kiểm tra dữ liệu sai/trùng.
+2. Xóa lá, một con, hai con dùng successor, xóa khóa không tồn tại, cây rỗng.
+3. **Xóa nhiều khóa liên tiếp**: tối đa 20 khóa trên cây cập nhật sau lần trước.
+4. Mô phỏng SVG từng sự kiện từ callback của chính `src/bst.py` (không dựng lại thuật toán JS).
+5. 8 ví dụ nhanh, gồm kế vị sâu và kế vị có cây con phải.
+6. Bộ đếm theo từng bước: xét nút khi tìm khóa, xét nút/bước trái tìm kế vị, xét nút khi xóa bản sao.
+7. Inorder trước/sau, gốc, số nút, chiều cao và trạng thái hợp lệ BST.
+8. Sao chép kết quả và **tải nhật ký từng bước dạng `.txt`**; favicon riêng; giao diện co giãn.
+9. 12 ca kiểm thử chuẩn, bộ kiểm thử mở rộng, bộ kiểm thử web, và 29 lượt thực nghiệm 5/20/50 nút.
+
+**Chú ý:** Các ô gốc, số nút, chiều cao là **kết quả cuối của lần xóa**, còn hình cây và bộ đếm là **trạng thái của bước đang xem**. Bước sao chép khóa successor có thể tạm thời hiện hai khóa trùng; BST chỉ được kiểm tra ở cuối thao tác.
+
+## Chạy trên Windows
+
+Mở CMD **ngay tại thư mục chứa `web_app.py`**, chạy:
 
 ```powershell
-python demo.py --example 1
-python demo.py --example 2
-python demo.py --interactive
+python -m pip install -r requirements-web.txt
 python -m test.runtests
+python -m unittest discover -s test -p "test_*.py" -v
+python -m experiments.benchmark
+python web_app.py
 ```
 
-Nếu Windows dùng `py`, thay `python` bằng `py`.
+Sau đó mở http://127.0.0.1:5000/ . Nếu Flask đang chạy ở cửa sổ CMD khác, dùng `Ctrl+C` để dừng bản cũ trước khi khởi động bản mới.
 
-## Hợp đồng hàm
-- `tao_cay(day)`: tối đa 100 khóa nguyên phân biệt. Trùng khóa hoặc sai loại -> `ValueError`.
-- `chen(g,x)` chèn và **trả gốc**.
-- `nho_nhat(g)` đi trái đến cuối, xác định successor.
-- `xoa(g,x,tk)` xử lý lá/một con/hai con, **trả gốc mới**. Khi hai con, chép khóa successor rồi xóa bản gốc của successor.
-- `duyet_giua`, `dem_nut`, `kiem_bst`, `chieu_cao` là các hàm độc lập để kiểm chứng.
+## Kiểm tra nhanh trước khi đưa lên GitHub
 
-Cây rỗng có gốc `None` (tương đương `nothing` trong mẫu Julia), cao 0. Lá cao 1.
+1. Ví dụ 06: chèn `5,3,7,2,4,6,8`; xóa `5,3,99,6`; gốc sau từng lần `6,6,6,7`; inorder cuối `[2,4,7,8]`.
+2. Ví dụ 07: kế vị sâu; bộ đếm khi kết thúc tìm khóa `1`, xét kế vị `4`, bước trái `3`, xét xóa bản sao `4`, tổng lượt xét `9`.
+3. Ví dụ 08: nút kế vị có con phải; kiểm tra inorder giữ nguyên tất cả khóa trừ khóa xóa.
+4. Nút **Tải nhật ký từng bước (.txt)** tải được file và ghi đủ các lần xóa.
+5. Chạy lại toàn bộ test, sau đó chạy website ở localhost; cuối cùng cập nhật GitHub đúng **một lần** và kiểm tra Render Live.
 
-## Bằng chứng cần bổ sung bởi sinh viên
-Chụp **ảnh chạy thật** cho `VD01`, `VD02`, `TK01`, `TK02`, `BIEN01`, `BIEN02`, `BIEN03`, `LOI01`, tổng kết test, GitHub commit, clone sạch rồi chạy lại = 11 ảnh tối thiểu.
+## Triển khai Render
 
-**Lưu ý:** Mã nguồn do trợ lý hỗ trợ soạn dựa theo phiếu DT087. Người nộp cần đọc, tự chạy, kiểm thử, kiểm tra độc lập và trình bày trung thực quá trình thực hiện. Không sử dụng ảnh mẫu BFS làm minh chứng.
+- Build Command: `pip install -r requirements-web.txt`
+- Start Command: `gunicorn web_app:app`
+- Root Directory: để trống
+- Instance Type: Free (nếu sử dụng gói miễn phí)
+- Repository: `xudo210/bst-visualizer-dt087`, branch `main`.
 
+Chỉ tải **nội dung của thư mục này** lên thư mục gốc repository. Không cần đẩy ZIP; bỏ qua `__pycache__`, `.venv`, `*.pyc`. Không ghi đè một phiên bản đã chạy ổn mà chưa kiểm thử.
 
-## Nâng cấp 02 — Thống kê chi phí thuật toán (31/10/2026)
+## Sơ đồ mã nguồn
 
-- Đếm riêng số nút xét khi tìm khóa, số nút xét và số bước sang trái khi tìm kế vị, số nút xét khi xóa bản sao kế vị.
-- Các bộ đếm hiển thị theo **bước mô phỏng đang chọn** (không dùng giá trị cuối cho bước đầu).
-- Bổ sung ví dụ 07 (kế vị sâu) và 08 (kế vị có con phải).
-- Chạy `python thuc_nghiem_thong_ke.py` để in bảng số liệu cho báo cáo.
-- Đọc `HUONG_DAN_THONG_KE.md` để có quy ước đếm, hướng dẫn test và cập nhật GitHub.
+- `src/bst.py`: BST cốt lõi, duyệt inorder O(n), chèn/xóa/tìm kế vị và bộ đếm.
+- `web_trace.py`: chuyển các sự kiện xóa thành khung mô phỏng.
+- `web_app.py`: Flask và các endpoint JSON.
+- `templates/index.html`, `static/app.js`, `static/style.css`: website.
+- `demo.py`: CLI và hai ví dụ bắt buộc.
+- `test/`: kiểm thử gốc, nâng cao, bộ đếm, website và hồi quy giao diện.
+- `experiments/`: 29 lượt thực nghiệm, CSV và bảng Markdown phục vụ báo cáo.
+- `docs/anh_ket_qua/`: ảnh minh chứng từ phiên bản trước; ảnh GitHub, kiểm thử và website công khai cần được chụp lại theo phiên bản cuối.
 
-Giữ tương thích API `/api/analyze`, `/api/analyze-batch` và toàn bộ chức năng xóa nhiều khóa từ bản nâng cấp 01.
+## Phiên bản nộp và ảnh minh chứng
 
-## Hoan thien ma nguon (31/10/2026)
+Gói tích hợp này đã được kiểm thử trực tiếp với các lệnh trong mục "Chạy trên Windows". Mã nguồn ZIP đầy đủ **khác** commit GitHub C được chụp trong A10–A11. Xem `docs/PHIEN_BAN_VA_MINH_CHUNG.md` và mã SHA-256 ZIP trong file TXT thuộc bộ hồ sơ nộp.
 
-- Duyet inorder tich luy O(n) va dung chung `nho_nhat` cho successor de tranh trung logic.
-- `demo.py` in day du thong ke va `test/test_cai_tien_bst.py` kiem tra them 10 ca.
-- Xem `HUONG_DAN_HOAN_THIEN_MA_NGUON.md` de chay test va cap nhat minh chung/anh.
+Các ảnh A01–A08 là hình chạy CLI từ giai đoạn trước; A09–A11 minh chứng cho commit C trên GitHub. Các hình W01–W04 dùng minh họa chức năng web. Người nộp cần hiểu được cách nối liên kết và thay successor khi trình bày.
+
+Mã nguồn có sự hỗ trợ biên soạn từ công cụ AI; người nộp chịu trách nhiệm rà soát, kiểm thử và trình bày trung thực.
